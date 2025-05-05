@@ -140,9 +140,21 @@ Este repositório documenta a construção de uma infraestrutura escalável e al
 ![Captura de tela 2025-05-02 101147](https://github.com/user-attachments/assets/3847f754-514d-4898-9af2-4ebd36d95bbd)
 
 ### 5. EC2 Privada com Docker
+
+![Captura de tela 2025-05-02 101154](https://github.com/user-attachments/assets/184f0bdc-651d-498c-b51b-06258a2a3f0b)
+
 - AMI: Ubuntu 24.04
+
+![Captura de tela 2025-05-02 105231](https://github.com/user-attachments/assets/fe4b4611-fd3f-4c0e-a797-a239fec4fdf4)
+
+- Criar a Key pair
+
+![Captura de tela 2025-05-02 105430](https://github.com/user-attachments/assets/04a3bac2-a95b-4310-84d8-938deb86cdcb)
+
 - Subnet: Privada
-- SG: SG-EC2
+- SG: EC2-SG
+
+![Captura de tela 2025-05-02 105622](https://github.com/user-attachments/assets/1641a27d-c04a-4e81-9f5e-5c332a63e897)
 
 ## Observação extra sobre EC2 e automação com User Data
 
@@ -178,13 +190,29 @@ EOF
 docker compose up -d
 ```
 
-- Conectar via bastion
-- Instalar Docker e Docker Compose
+- Conectar via bastion (Uma EC2 na subnet pública que consegue acessar a EC2 na subnet privada
+
+![Captura de tela 2025-05-02 111244](https://github.com/user-attachments/assets/f5230e16-c7e0-41ba-9cf4-1acc6b1b1b64)
+
+![Captura de tela 2025-05-02 111934](https://github.com/user-attachments/assets/8a7443fe-9847-4194-8b23-6abcb11c2e9a)
+
+- Instalar Docker, Docker Compose e NFS
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose nfs-common
+sudo systemctl enable docker
+sudo systemctl start docker
+```
 - Montar o EFS em /mnt/efs:
 ```bash
+sudo mkdir /mnt/efs
 sudo mount -t nfs4 -o nfsvers=4.1 fs-xxxxxxxx.efs.us-east-1.amazonaws.com:/ /mnt/efs
+sudo chown -R 33:33 /mnt/efs
 ```
 - Criar `docker-compose.yml` para WordPress:
+```bash
+nano docker-compose.yml
+```
 ```yaml
 services:
   wordpress:
@@ -198,6 +226,7 @@ services:
       WORDPRESS_DB_NAME: <nome do banco>
     volumes:
       - /mnt/efs:/var/www/html
+    restart: always
 ```
 - Rodar:
 ```bash
@@ -205,30 +234,77 @@ sudo docker compose up -d
 ```
 
 ### 6. Target Group
-- Tipo: IP
+
+![Captura de tela 2025-05-02 114231](https://github.com/user-attachments/assets/744878f8-02b7-429b-b54f-d539a2e19fef)
+
+- Tipo: Instances
 - Porta: 80
+
+![Captura de tela 2025-05-02 114352](https://github.com/user-attachments/assets/a925faa2-459b-48c0-8265-45c617db69e7)
+
 - VPC correta
-- Adicionar IPs privados das instâncias
-- Health Check: path `/`, protocolo HTTP
+
+![Captura de tela 2025-05-02 114405](https://github.com/user-attachments/assets/a45c29ce-6e4b-4264-88f6-544e19ba2a3d)
+
+- Registre os targets
+
+![Captura de tela 2025-05-02 114549](https://github.com/user-attachments/assets/977f368b-0611-46bd-8904-4708643447ad)
+
+![Captura de tela 2025-05-02 114518](https://github.com/user-attachments/assets/89448832-aef1-4b8a-8ebc-8f9a95e3eb32)
 
 ### 7. Application Load Balancer
-- Tipo: Internet-facing
+
+![Captura de tela 2025-05-02 114826](https://github.com/user-attachments/assets/13833c0a-6cf1-46e0-a28b-2950b42bd7d0)
+
+![Captura de tela 2025-05-02 114836](https://github.com/user-attachments/assets/cd8459cd-78c4-4f1e-b92f-4ead34d1c1d7)
+
 - Subnets públicas
-- SG: SG-ALB
-- Listener: porta 80 → encaminhar para o target group
-- Acesso: `http://<DNS do ALB>`
+
+![Captura de tela 2025-05-02 115003](https://github.com/user-attachments/assets/c3cc1277-d8a8-4d6a-bf0b-0abf22056aa0)
+
+- Acesso:
+
+![Captura de tela 2025-05-02 115615](https://github.com/user-attachments/assets/2229a551-2e13-452c-bc7b-3d8787eb7de3)
+
+- Aplicação Rodando:
+
+![Captura de tela 2025-05-02 122221](https://github.com/user-attachments/assets/9e1c38c6-b2ea-45c4-b4ae-a2827cef1ca0)
 
 ### 8. Auto Scaling Group
+
+![Captura de tela 2025-05-02 125136](https://github.com/user-attachments/assets/308b0f97-2b41-47c0-9436-159093901690)
+
+![Captura de tela 2025-05-02 125143](https://github.com/user-attachments/assets/83f49cbe-5cab-4a81-83c5-1c0eea157ba4)
+
+![Captura de tela 2025-05-02 125208](https://github.com/user-attachments/assets/eb6a362b-59ee-487c-8432-ff576735fa74)
+
 - Criar Launch Template com:
   - AMI Ubuntu
   - Subnet privada
-  - SG-EC2
+  - EC2-SG
   - Script de inicialização para instalar Docker, montar EFS e iniciar WordPress
+    
 - Criar Auto Scaling Group:
   - Subnets privadas
+    
+![Captura de tela 2025-05-02 130418](https://github.com/user-attachments/assets/c945ca70-889d-4f2c-b78d-41d223cea543)
+
   - Associar ao Target Group
+
+![Captura de tela 2025-05-02 130502](https://github.com/user-attachments/assets/5374aa8c-f05a-4a64-8555-fc170b4cd71b)
+
   - Definir min/max de instâncias
   - Política de escalabilidade com base na CPU
+
+![Captura de tela 2025-05-02 130656](https://github.com/user-attachments/assets/2e1d7488-4a67-4460-9163-9d3df8e01331)
+
+- Auto-Scaling adicionando EC2 na infra:
+
+![Captura de tela 2025-05-02 130922](https://github.com/user-attachments/assets/578f7707-0651-4291-bcc2-23f3129d6a69)
+
+- Wordpress funcionando normalmente:
+
+![Captura de tela 2025-05-02 132421](https://github.com/user-attachments/assets/a0f84567-20bf-46e3-9003-89d222359443)
 
 ---
 
