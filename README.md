@@ -51,11 +51,31 @@ Este repositório documenta a construção de uma infraestrutura escalável e al
 ![Captura de tela 2025-05-02 085938](https://github.com/user-attachments/assets/6a0dc438-7291-4e4e-abd3-10a14fc9a468)
 
 ### 2. Security Groups
-- **SG-ALB**: Permitir entrada na porta 80 de qualquer origem.
-- **SG-EC2**: Permitir entrada na porta 80 apenas do SG-ALB.
-- **SG-RDS**: Permitir entrada na porta 3306 apenas do SG-EC2.
-- **SG-EFS**: Permitir entrada na porta 2049 do SG-EC2.
-- **SG-Bastion**: Permitir SSH apenas do seu IP.
+
+![Captura de tela 2025-05-02 090027](https://github.com/user-attachments/assets/08498d26-644b-440c-922a-898a3f56686d)
+
+![Captura de tela 2025-05-02 090046](https://github.com/user-attachments/assets/19a518fe-fda4-4d23-bf82-f658afc59d94)
+
+- **EC2-SG**: Permitir entrada nas portas 80, 22 e 2049.
+  
+![Captura de tela 2025-05-02 090541](https://github.com/user-attachments/assets/3045c871-74f3-4926-8025-739812a237f0)
+
+- **ALB-SG**: Permitir entrada na porta 80 de qualquer origem.
+
+![Captura de tela 2025-05-02 090729](https://github.com/user-attachments/assets/3bd12a20-5174-483a-935a-5ac07fc990d4)
+
+- **RDS-SG**: Permitir entrada na porta 3306 apenas do EC2-SG.
+
+![Captura de tela 2025-05-02 090858](https://github.com/user-attachments/assets/5594cf58-8688-4c57-a1ba-7c7ca71f739c)
+  
+- **SG-EFS**: Permitir entrada na porta 2049 do EC2-SG.
+
+![Captura de tela 2025-05-02 092331](https://github.com/user-attachments/assets/442107c4-1d33-4a28-aed0-69d141f1a53d)
+
+**EC2-SG**: Atualizado com fonte dos Security Group do ALB e EFS.
+
+![Captura de tela 2025-05-02 092457](https://github.com/user-attachments/assets/c41e2c4f-4ae6-4d3e-91cb-0b8dc0b2f509)
+
 
 ### 3. Banco de Dados (RDS)
 - Engine: MySQL 8.x
