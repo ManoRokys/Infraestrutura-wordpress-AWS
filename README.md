@@ -68,7 +68,7 @@ Este repositório documenta a construção de uma infraestrutura escalável e al
 
 ![Captura de tela 2025-05-02 090858](https://github.com/user-attachments/assets/5594cf58-8688-4c57-a1ba-7c7ca71f739c)
   
-- **SG-EFS**: Permitir entrada na porta 2049 do EC2-SG.
+- **EFS-SG**: Permitir entrada na porta 2049 do EC2-SG.
 
 ![Captura de tela 2025-05-02 092331](https://github.com/user-attachments/assets/442107c4-1d33-4a28-aed0-69d141f1a53d)
 
@@ -78,16 +78,66 @@ Este repositório documenta a construção de uma infraestrutura escalável e al
 
 
 ### 3. Banco de Dados (RDS)
+
+![Captura de tela 2025-05-02 092602](https://github.com/user-attachments/assets/0a5385d8-de0b-4f5c-b6f5-352fe769b52c)
+
+![Captura de tela 2025-05-02 093109](https://github.com/user-attachments/assets/74789581-d8e1-4f2e-9793-7cbd614fe53a)
+
 - Engine: MySQL 8.x
-- Multi-AZ: Opcional
+
+![Captura de tela 2025-05-02 093149](https://github.com/user-attachments/assets/095acfa6-fa0f-459b-a5f7-b55ba409ab6a)
+
+![Captura de tela 2025-05-02 093317](https://github.com/user-attachments/assets/dc047040-487f-44ca-a18b-03cd0f76139d)
+
 - Credenciais: definir nome do DB, usuário e senha
+
+![Captura de tela 2025-05-02 093415](https://github.com/user-attachments/assets/5b5ae32f-f563-4647-aaa1-b8304dc2639e)
+
+- Definindo o t3.micro e o espaço utilizável
+  
+![Captura de tela 2025-05-02 093512](https://github.com/user-attachments/assets/528ca29e-8983-4bcb-a783-2a835405e24f)
+
 - VPC: usar subnets privadas
-- SG: usar SG-RDS
+- SG: usar RDS-SG
+
+![Captura de tela 2025-05-02 093807](https://github.com/user-attachments/assets/51516550-79d1-4606-9ad6-966f3284f95f)
+
+- Nome inicial do banco de dados
+
+![Captura de tela 2025-05-02 093953](https://github.com/user-attachments/assets/cf26b0c2-fc4b-4403-9607-961fe8a75cec)
+
+![Captura de tela 2025-05-02 094020](https://github.com/user-attachments/assets/b3337215-3587-4bf3-b525-c1f7a2635884)
+
+- Espere o Banco de Dados ficar disponível.
+
+![Captura de tela 2025-05-02 095255](https://github.com/user-attachments/assets/4966bc8d-ecf5-4976-ace6-29692077ccce)
 
 ### 4. EFS (Elastic File System)
+
+![Captura de tela 2025-05-02 095420](https://github.com/user-attachments/assets/4bf7310b-9fe1-42f3-b92b-e804d6c31da1)
+
+![Captura de tela 2025-05-02 095520](https://github.com/user-attachments/assets/10f2d35e-61ef-4e8f-99d6-67d41716d3e9)
+
+![Captura de tela 2025-05-02 095548](https://github.com/user-attachments/assets/20f7ef80-1c11-43b9-bcbd-c283e581e32c)
+
 - Criar sistema de arquivos com ponto de montagem em subnets privadas
-- Associar o SG-EFS
-- Permitir acesso via NFS (2049)
+- Associar o EFS-SG
+  
+![Captura de tela 2025-05-02 095702](https://github.com/user-attachments/assets/7aead517-5b68-4f21-96bc-2d95da77636f)
+
+- Configurar a performance do EFS
+
+![Captura de tela 2025-05-02 095911](https://github.com/user-attachments/assets/dac1f8ec-e00f-40b4-8aae-f737527b2877)
+
+- Use as KMS Keys padrões da AWS
+
+![Captura de tela 2025-05-02 100810](https://github.com/user-attachments/assets/ef5e1709-a141-43d5-b9ac-60e50a520fac)
+
+![Captura de tela 2025-05-02 100818](https://github.com/user-attachments/assets/223c88a9-ff2b-4f2f-9540-671b4c0103a5)
+
+- Espere o EFS ficar disponível
+
+![Captura de tela 2025-05-02 101147](https://github.com/user-attachments/assets/3847f754-514d-4898-9af2-4ebd36d95bbd)
 
 ### 5. EC2 Privada com Docker
 - AMI: Ubuntu 24.04
