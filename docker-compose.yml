@@ -1,0 +1,13 @@
+version: '3.1'
+services:
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - 80:80
+    environment:
+      WORDPRESS_DB_HOST: <ENDERECO-DO-RDS>
+      WORDPRESS_DB_USER: admin
+      WORDPRESS_DB_PASSWORD: senha123
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - /mnt/efs:/var/www/html
