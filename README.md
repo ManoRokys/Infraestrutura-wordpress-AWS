@@ -321,5 +321,5 @@ sudo docker compose up -d
 👤 **Lucas Gomes Fagundes**  
 Apaixonado por tecnologia e sempre buscando aprimorar habilidades em ambientes reais de desenvolvimento e implantação.
 
-[LinkedIn]([https://www.linkedin.com](https://www.linkedin.com/in/lucas-gomes-fagundes-478b742b4/)) 
+https://www.linkedin.com/in/lucas-gomes-fagundes-478b742b4/
 
