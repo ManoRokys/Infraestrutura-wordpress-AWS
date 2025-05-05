@@ -1,19 +1,16 @@
 #!/bin/bash
-# Atualiza pacotes e instala Docker + NFS
-apt update -y
-apt upgrade -y
-apt install -y docker.io nfs-common
+apt update
+apt install -y docker.io docker-compose nfs-common
+systemctl enable docker
+systemctl start docker
 
-# Cria diretório e monta o EFS
 mkdir -p /mnt/efs
 mount -t nfs4 -o nfsvers=4.1 fs-<ID-DO-EFS>.efs.us-east-1.amazonaws.com:/ /mnt/efs
+chown -R 33:33 /mnt/efs
 
-# Vai para o diretório do usuário padrão
 cd /home/ubuntu
 
-# Cria o arquivo docker-compose.yml diretamente
-cat > docker-compose.yml <<EOF
-version: '3.1'
+cat <<EOF > docker-compose.yml
 services:
   wordpress:
     image: wordpress:latest
@@ -22,11 +19,11 @@ services:
     environment:
       WORDPRESS_DB_HOST: <ENDERECO-DO-RDS>
       WORDPRESS_DB_USER: admin
-      WORDPRESS_DB_PASSWORD: senha123
+      WORDPRESS_DB_PASSWORD: <SENHA-DO-RDS>
       WORDPRESS_DB_NAME: wordpress
     volumes:
-      - /mnt/efs:/var/www/html
+      - /mnt/efs/wp-content:/var/www/html/wp-content
+    restart: always
 EOF
 
-# Sobe o container
 docker compose up -d
