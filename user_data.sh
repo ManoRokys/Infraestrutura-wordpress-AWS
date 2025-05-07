@@ -1,29 +1,42 @@
 #!/bin/bash
-apt update
-apt install -y docker.io docker-compose nfs-common
-systemctl enable docker
+EFS_FILE_SYSTEM_ID="<ID-DO-EFS>"  
+DB_HOST="<ENDERECO-DO-RDS>"  
+DB_NAME="wordpress"  
+DB_USER="admin"  
+DB_PASSWORD="<SENHA-DO-RDS>"  
+PROJECT_DIR="/home/ubuntu/projeto-docker"
+EFS_MOUNT_DIR="/mnt/efs"
+
+apt update -y
+apt install -y docker.io docker-compose nfs-common curl
 systemctl start docker
+systemctl enable docker
+usermod -aG docker ubuntu
 
-mkdir -p /mnt/efs
-mount -t nfs4 -o nfsvers=4.1 fs-<ID-DO-EFS>.efs.us-east-1.amazonaws.com:/ /mnt/efs
-chown -R 33:33 /mnt/efs
+mkdir -p ${EFS_MOUNT_DIR}
+mount -t nfs4 -o nfsvers=4.1 ${EFS_FILE_SYSTEM_ID}.efs.us-east-1.amazonaws.com:/ ${EFS_MOUNT_DIR}
+echo "${EFS_FILE_SYSTEM_ID}.efs.us-east-1.amazonaws.com:/ ${EFS_MOUNT_DIR} nfs4 defaults,_netdev 0 0" >> /etc/fstab
 
-cd /home/ubuntu
+chown -R 33:33 ${EFS_MOUNT_DIR}
 
-cat <<EOF > docker-compose.yml
+mkdir -p ${PROJECT_DIR}
+cd ${PROJECT_DIR}
+
+cat > docker-compose.yml <<EOL
 services:
   wordpress:
     image: wordpress:latest
+    container_name: wordpress
+    environment:
+      WORDPRESS_DB_HOST: ${DB_HOST}
+      WORDPRESS_DB_NAME: ${DB_NAME}
+      WORDPRESS_DB_USER: ${DB_USER}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - 80:80
-    environment:
-      WORDPRESS_DB_HOST: <ENDERECO-DO-RDS>
-      WORDPRESS_DB_USER: admin
-      WORDPRESS_DB_PASSWORD: <SENHA-DO-RDS>
-      WORDPRESS_DB_NAME: wordpress
     volumes:
-      - /mnt/efs/wp-content:/var/www/html/wp-content
+      - ${EFS_MOUNT_DIR}:/var/www/html/wp-content
     restart: always
-EOF
+EOL
 
 docker compose up -d
