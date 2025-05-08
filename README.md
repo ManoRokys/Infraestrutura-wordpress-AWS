@@ -163,12 +163,13 @@ Durante o processo de criação da instância EC2 para rodar o container Docker 
 Isso elimina a necessidade de acessar manualmente a instância para instalar Docker e rodar o container. Abaixo está um exemplo funcional de script `User Data`, baseado exatamente no que foi usado neste projeto:
 ```bash
 #!/bin/bash
-EFS_FILE_SYSTEM_ID="<ID-DO-EFS>"  
-DB_HOST="<ENDERECO-DO-RDS>"  
-DB_NAME="wordpress"  
-DB_USER="admin"  
-DB_PASSWORD="<SENHA-DO-RDS>"  
-PROJECT_DIR="/home/ubuntu/projeto-docker"
+EFS_FILE_SYSTEM_ID="INSIRA O ID DO EFS AQUI"
+REGION="INSIRA A REGIAO DO SEU EFS AQUI"
+DB_HOST="INSIRA AQUI O ENDPOINT DO SEU RDS"
+DB_NAME="INSIRA AQUI O NOME DO SEU DB"
+DB_USER="INSIRA AQUI O USUARIO DO SEU DB"
+DB_PASSWORD="INSIRA A SENHA DO SEU DB AQUI"
+PROJECT_DIR="/root/projeto-docker-aws"
 EFS_MOUNT_DIR="/mnt/efs"
 
 apt update -y
@@ -178,8 +179,8 @@ systemctl enable docker
 usermod -aG docker ubuntu
 
 mkdir -p ${EFS_MOUNT_DIR}
-mount -t nfs4 -o nfsvers=4.1 ${EFS_FILE_SYSTEM_ID}.efs.us-east-1.amazonaws.com:/ ${EFS_MOUNT_DIR}
-echo "${EFS_FILE_SYSTEM_ID}.efs.us-east-1.amazonaws.com:/ ${EFS_MOUNT_DIR} nfs4 defaults,_netdev 0 0" >> /etc/fstab
+mount -t nfs4 -o nfsvers=4.1 ${EFS_FILE_SYSTEM_ID}.efs.${REGION}.amazonaws.com:/ ${EFS_MOUNT_DIR}
+echo "${EFS_FILE_SYSTEM_ID}.efs.${REGION}.amazonaws.com:/ ${EFS_MOUNT_DIR} nfs4 defaults,_netdev 0 0" >> /etc/fstab
 
 chown -R 33:33 ${EFS_MOUNT_DIR}
 
@@ -203,7 +204,7 @@ services:
     restart: always
 EOL
 
-docker compose up -d
+docker-compose up -d > /var/log/docker-up.log 2>&1
 ```
 
 - Conectar via bastion (Uma EC2 na subnet pública que consegue acessar a EC2 na subnet privada
